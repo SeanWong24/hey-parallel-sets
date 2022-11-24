@@ -5,8 +5,11 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { Datum } from "./utils/data-structures/basic";
 export namespace Components {
     interface HeyParallelSets {
+        "data": Datum[];
+        "dimensions": string[];
     }
 }
 declare global {
@@ -22,6 +25,8 @@ declare global {
 }
 declare namespace LocalJSX {
     interface HeyParallelSets {
+        "data"?: Datum[];
+        "dimensions"?: string[];
     }
     interface IntrinsicElements {
         "hey-parallel-sets": HeyParallelSets;
