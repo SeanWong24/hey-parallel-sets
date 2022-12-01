@@ -5,8 +5,17 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
+import { AxisConfigDict, Datum } from "./utils/data-structures/basic";
+import { AxisValueSortingFunction } from "./utils/data-structures/axis";
 export namespace Components {
     interface HeyParallelSets {
+        "data": Datum[];
+        "dimensionAndAxisLabelDict"?: AxisConfigDict<string>;
+        "dimensionAndAxisMaxSegmentCountLimitDict"?: AxisConfigDict<number>;
+        "dimensionAndAxisMergedSegmentLabelDict": AxisConfigDict<string>;
+        "dimensionAndAxisMergedSegmentMaxRatioDict": AxisConfigDict<number>;
+        "dimensionAndAxisValueSortingFunctionDict": AxisConfigDict<AxisValueSortingFunction>;
+        "dimensions": string[];
     }
 }
 declare global {
@@ -22,6 +31,13 @@ declare global {
 }
 declare namespace LocalJSX {
     interface HeyParallelSets {
+        "data"?: Datum[];
+        "dimensionAndAxisLabelDict"?: AxisConfigDict<string>;
+        "dimensionAndAxisMaxSegmentCountLimitDict"?: AxisConfigDict<number>;
+        "dimensionAndAxisMergedSegmentLabelDict"?: AxisConfigDict<string>;
+        "dimensionAndAxisMergedSegmentMaxRatioDict"?: AxisConfigDict<number>;
+        "dimensionAndAxisValueSortingFunctionDict"?: AxisConfigDict<AxisValueSortingFunction>;
+        "dimensions"?: string[];
     }
     interface IntrinsicElements {
         "hey-parallel-sets": HeyParallelSets;
