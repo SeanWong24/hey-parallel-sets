@@ -1,4 +1,4 @@
-import { Component, Host, h, ComponentInterface, Prop, State } from '@stencil/core';
+import { Component, Host, h, ComponentInterface, Prop, State, Element } from '@stencil/core';
 import Enumerable from 'linq';
 import { Axis, AxisValueSortingFunction } from '../../utils/data-structures/axis';
 import { AxisConfigDict, Datum } from '../../utils/data-structures/basic';
@@ -9,7 +9,12 @@ import { AxisConfigDict, Datum } from '../../utils/data-structures/basic';
   shadow: true,
 })
 export class HeyParallelSets implements ComponentInterface {
+  private readonly AXIS_MARGIN = 0.1;
+
+  @Element() hostElement: HTMLHeyParallelSetsElement;
+
   @State() dimensionAndAxisMap: Map<string, Axis>;
+  @State() hostElementBoundingClientRect: DOMRect;
 
   @Prop() data: Datum[];
   @Prop() dimensions: string[];
@@ -21,6 +26,17 @@ export class HeyParallelSets implements ComponentInterface {
 
   componentWillRender() {
     this.dimensionAndAxisMap = this.obtainDimensionAndAxisMap();
+  }
+
+  componentDidLoad() {
+    const resizeObserver = new ResizeObserver(entryList => {
+      for (const entry of entryList) {
+        if (entry.target === this.hostElement) {
+          this.hostElementBoundingClientRect = entry.target.getBoundingClientRect();
+        }
+      }
+    });
+    resizeObserver.observe(this.hostElement);
   }
 
   componentShouldUpdate(_newValue: any, _oldValue: any, propName: string) {
@@ -38,15 +54,14 @@ export class HeyParallelSets implements ComponentInterface {
   }
 
   private renderVis() {
-    return [this.renderAxes()];
+    return this.hostElementBoundingClientRect?.width > 0 && this.hostElementBoundingClientRect?.height > 0 && [this.renderAxes()];
   }
 
   private renderAxes() {
     return (
       <g class="axes">
         {this.dimensions?.map((dimension, dimensionIndex) => {
-          const axisMargin = 0.1;
-          const axisRatio = (dimensionIndex / (this.dimensions.length - 1)) * (1 - axisMargin) + axisMargin / 2;
+          const axisRatio = (dimensionIndex / (this.dimensions.length - 1)) * (1 - this.AXIS_MARGIN) + this.AXIS_MARGIN / 2;
           const axis = this.dimensionAndAxisMap.get(dimension);
           const segments = axis.segments;
           const totalMarginForSegments = 0.05;
@@ -60,20 +75,20 @@ export class HeyParallelSets implements ComponentInterface {
                   <g class="axis-segment">
                     <rect
                       class="axis-segment-box"
-                      x={this.ratioToPercentageString(axisRatio)}
-                      y={this.ratioToPercentageString(previousSegmentRatio + marginForEachSide)}
+                      x={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
+                      y={this.ratioToPixel(previousSegmentRatio + marginForEachSide, this.hostElementBoundingClientRect.height)}
                       width="15px"
-                      height={this.ratioToPercentageString(segment.adjustedRatio - marginForEachSegment)}
+                      height={this.ratioToPixel(segment.adjustedRatio - marginForEachSegment, this.hostElementBoundingClientRect.height)}
                       fill="black"
                     >
                       <title>{`${axis.label}: ${segment.label} (${segment.ratio.toFixed(2)}%)`}</title>
                     </rect>
                     <line
                       class="axis-segment-line"
-                      x1={this.ratioToPercentageString(axisRatio)}
-                      y1={this.ratioToPercentageString(previousSegmentRatio + marginForEachSide)}
-                      x2={this.ratioToPercentageString(axisRatio)}
-                      y2={this.ratioToPercentageString(previousSegmentRatio + segment.adjustedRatio - marginForEachSide)}
+                      x1={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
+                      y1={this.ratioToPixel(previousSegmentRatio + marginForEachSide, this.hostElementBoundingClientRect.height)}
+                      x2={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
+                      y2={this.ratioToPixel(previousSegmentRatio + segment.adjustedRatio - marginForEachSide, this.hostElementBoundingClientRect.height)}
                       stroke="black"
                     ></line>
                   </g>
@@ -114,7 +129,7 @@ export class HeyParallelSets implements ComponentInterface {
     return dict?.[dimension] ?? dict?.[''];
   }
 
-  private ratioToPercentageString(ratio: number) {
-    return `${ratio * 100}%`;
+  private ratioToPixel(ratio: number, fullPixels: number) {
+    return fullPixels * ratio;
   }
 }
