@@ -69,6 +69,12 @@ export class Axis implements AxisOptions {
     } else {
       this._adjustedSegments = this._segments;
     }
+
+    let ratioOffset = 0;
+    Enumerable.from(this._adjustedSegments ?? []).forEach(segment => {
+      segment.ratioOffset = ratioOffset;
+      ratioOffset += segment.adjustedRatio;
+    });
   }
 
   get data() {

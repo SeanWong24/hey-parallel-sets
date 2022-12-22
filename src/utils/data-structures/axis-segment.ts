@@ -1,5 +1,5 @@
 import { Axis } from './axis';
-import { Datum } from './basic';
+import { Datum, RatioRange } from './basic';
 import { WrappedValue } from './wrapped-value';
 
 export interface AxisSegmentOptions {
@@ -13,6 +13,7 @@ export interface AxisSegmentOptions {
 export class AxisSegment implements AxisSegmentOptions {
   axis: Axis;
   value: WrappedValue;
+  ratioOffset: number = 0;
   data: Datum[];
   merged: boolean = false;
 
@@ -38,6 +39,10 @@ export class AxisSegment implements AxisSegmentOptions {
 
   get adjustedRatio() {
     return this.merged ? this.ratio - this.mergedSegmentAdjustmentRatio : this.ratio + this.mergedSegmentAdjustmentRatio * (this.ratio / (1 - this.axis.mergedSegmentRatio));
+  }
+
+  get ratioRange() {
+    return { start: this.ratioOffset, end: this.ratioOffset + this.adjustedRatio } as RatioRange;
   }
 
   constructor(options: AxisSegmentOptions) {

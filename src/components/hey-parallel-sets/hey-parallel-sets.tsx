@@ -1,7 +1,7 @@
 import { Component, Host, h, ComponentInterface, Prop, State, Element } from '@stencil/core';
 import Enumerable from 'linq';
 import { Axis, AxisValueSortingFunction } from '../../utils/data-structures/axis';
-import { AxisConfigDict, Datum } from '../../utils/data-structures/basic';
+import { AxisConfigDict, Datum, RatioRange } from '../../utils/data-structures/basic';
 
 @Component({
   tag: 'hey-parallel-sets',
@@ -66,19 +66,19 @@ export class HeyParallelSets implements ComponentInterface {
           const segments = axis.segments;
           const totalMarginForSegments = 0.05;
           const marginForEachSegment = totalMarginForSegments / segments.length;
-          let previousSegmentRatio = 0;
           return (
             <g class="axis">
               {segments.map(segment => {
                 const marginForEachSide = marginForEachSegment / 2;
+                const ratioRange = this.obtainAxisSegmentRatioRangeWithMargin(segment.ratioRange, marginForEachSide);
                 const segmentElement = (
                   <g class="axis-segment">
                     <rect
                       class="axis-segment-box"
                       x={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
-                      y={this.ratioToPixel(previousSegmentRatio + marginForEachSide, this.hostElementBoundingClientRect.height)}
+                      y={this.ratioToPixel(ratioRange.start, this.hostElementBoundingClientRect.height)}
                       width="15px"
-                      height={this.ratioToPixel(segment.adjustedRatio - marginForEachSegment, this.hostElementBoundingClientRect.height)}
+                      height={this.ratioToPixel(ratioRange.end - ratioRange.start, this.hostElementBoundingClientRect.height)}
                       fill="black"
                     >
                       <title>{`${axis.label}: ${segment.label} (${segment.ratio.toFixed(2)}%)`}</title>
@@ -86,14 +86,13 @@ export class HeyParallelSets implements ComponentInterface {
                     <line
                       class="axis-segment-line"
                       x1={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
-                      y1={this.ratioToPixel(previousSegmentRatio + marginForEachSide, this.hostElementBoundingClientRect.height)}
+                      y1={this.ratioToPixel(ratioRange.start, this.hostElementBoundingClientRect.height)}
                       x2={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
-                      y2={this.ratioToPixel(previousSegmentRatio + segment.adjustedRatio - marginForEachSide, this.hostElementBoundingClientRect.height)}
+                      y2={this.ratioToPixel(ratioRange.end, this.hostElementBoundingClientRect.height)}
                       stroke="black"
                     ></line>
                   </g>
                 );
-                previousSegmentRatio += segment.adjustedRatio;
                 return segmentElement;
               })}
             </g>
@@ -131,5 +130,12 @@ export class HeyParallelSets implements ComponentInterface {
 
   private ratioToPixel(ratio: number, fullPixels: number) {
     return fullPixels * ratio;
+  }
+  
+  private obtainAxisSegmentRatioRangeWithMargin(ratioRange: RatioRange, marginRatio: number) {
+    return {
+      start: ratioRange.start + marginRatio,
+      end: ratioRange.end - marginRatio,
+    } as RatioRange;
   }
 }
