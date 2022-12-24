@@ -16,6 +16,7 @@ export namespace Components {
         "dimensionAndAxisMergedSegmentMaxRatioDict": AxisConfigDict<number>;
         "dimensionAndAxisValueSortingFunctionDict": AxisConfigDict<AxisValueSortingFunction>;
         "dimensions": string[];
+        "ribbonTension": number;
     }
 }
 declare global {
@@ -38,6 +39,7 @@ declare namespace LocalJSX {
         "dimensionAndAxisMergedSegmentMaxRatioDict"?: AxisConfigDict<number>;
         "dimensionAndAxisValueSortingFunctionDict"?: AxisConfigDict<AxisValueSortingFunction>;
         "dimensions"?: string[];
+        "ribbonTension"?: number;
     }
     interface IntrinsicElements {
         "hey-parallel-sets": HeyParallelSets;

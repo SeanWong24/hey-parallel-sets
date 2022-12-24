@@ -21,3 +21,7 @@
 .axis-segment-box:hover {
   opacity: 0.1;
 }
+
+.ribbon {
+  cursor: pointer;
+}
