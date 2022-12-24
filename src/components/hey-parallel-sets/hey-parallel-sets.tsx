@@ -111,7 +111,7 @@ export class HeyParallelSets implements ComponentInterface {
   private renderRibbons() {
     return (
       <g class="ribbons">
-        {Enumerable.from(this.ribbonTree.children)
+        {Enumerable.from(this.ribbonTree?.children ?? [])
           .traverseBreadthFirst(ribbonTree => Enumerable.from(ribbonTree.children ?? []))
           .where(ribbonTree => ribbonTree.depth > 1)
           .select(ribbonTree => {
