@@ -14,7 +14,8 @@
   <hey-parallel-sets style="height: 480px; width: 640px;"></hey-parallel-sets>
   <script>
     (async () => {
-      const config = (await import('./assets/config.js')).config;
+      const response = await fetch('./assets/config.json');
+      const config = await response.json();
       Object.assign(document.querySelector('hey-parallel-sets'), config);
     })();
   </script>
