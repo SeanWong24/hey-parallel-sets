@@ -81,7 +81,7 @@ export class HeyParallelSets implements ComponentInterface {
                       height={this.ratioToPixel(ratioRange.end - ratioRange.start, this.hostElementBoundingClientRect.height)}
                       fill="black"
                     >
-                      <title>{`${axis.label}: ${segment.label} (${segment.ratio.toFixed(2)}%)`}</title>
+                      <title>{`${axis.label}: ${segment.label} (${this.ratioToPercentageString(segment.ratio)})`}</title>
                     </rect>
                     <line
                       class="axis-segment-line"
@@ -127,6 +127,10 @@ export class HeyParallelSets implements ComponentInterface {
   private obtainAxisConfigDictValue<T>(dimension: string, dict?: AxisConfigDict<T>) {
     return dict?.[dimension] ?? dict?.[''];
   }
+
+    private ratioToPercentageString(ratio: number, decimalDigits: number = 2) {
+      return `${(ratio * 100).toFixed(decimalDigits)}%`;
+    }
 
   private ratioToPixel(ratio: number, fullPixels: number) {
     return fullPixels * ratio;
