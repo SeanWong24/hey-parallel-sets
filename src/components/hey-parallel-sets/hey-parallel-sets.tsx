@@ -73,12 +73,12 @@ export class HeyParallelSets implements ComponentInterface {
           const totalMarginForSegments = 0.05;
           const marginForEachSegment = totalMarginForSegments / segments.length;
           return (
-            <g class="axis">
+            <g class="axis" ref={el => (axis.domElement = el as SVGGElement)}>
               {segments.map(segment => {
                 const marginForEachSide = marginForEachSegment / 2;
                 const ratioRange = this.obtainAxisSegmentRatioRangeWithAbsoluteMargins(segment.ratioRange, [marginForEachSide, marginForEachSide]);
                 const segmentElement = (
-                  <g class="axis-segment">
+                  <g class="axis-segment" ref={el => (segment.domElement = el as SVGGElement)}>
                     <rect
                       class="axis-segment-box"
                       x={this.ratioToPixel(axisRatio, this.hostElementBoundingClientRect.width)}
@@ -86,6 +86,16 @@ export class HeyParallelSets implements ComponentInterface {
                       width="15px"
                       height={this.ratioToPixel(ratioRange.end - ratioRange.start, this.hostElementBoundingClientRect.height)}
                       fill="black"
+                      onMouseEnter={() => {
+                        const ribbons = Enumerable.from(this.ribbonTree?.children ?? [])
+                          .traverseBreadthFirst(ribbon => Enumerable.from(ribbon?.children))
+                          .where(ribbonTree => ribbonTree?.path?.currentAxisSegment === segment)
+                          .selectMany(ribbon => this.obtainRelatingRibbons(ribbon))
+                          .distinct()
+                          .toArray();
+                        this.highlightRibbons(ribbons);
+                      }}
+                      onMouseLeave={() => this.clearRibbonHighlights()}
                     >
                       <title>{`${axis.label}: ${segment.label} (${this.ratioToPercentageString(segment.ratio)})`}</title>
                     </rect>
@@ -154,7 +164,14 @@ export class HeyParallelSets implements ComponentInterface {
               childY2: this.ratioToPixel(ratioRangeForNextAxis.end, this.hostElementBoundingClientRect.height),
             });
             return (
-              <path class="ribbon" d={pathD} fill="rgb(0,0,0,0.1)">
+              <path
+                class="ribbon"
+                d={pathD}
+                fill="bisque"
+                ref={el => (ribbonTree.domElement = el as SVGPathElement)}
+                onMouseEnter={() => this.highlightRibbons(this.obtainRelatingRibbons(ribbonTree))}
+                onMouseLeave={() => this.clearRibbonHighlights()}
+              >
                 <title>{ribbonTree.path?.axisSegments?.map(segment => segment.label)?.join(', ') + ` (${this.ratioToPercentageString(ribbonTree.ratio)})`}</title>
               </path>
             );
@@ -297,5 +314,34 @@ export class HeyParallelSets implements ComponentInterface {
       start: ratioRange.start + marginRatios?.[0] * ratio,
       end: ratioRange.end - marginRatios?.[1] * ratio,
     } as RatioRange;
+  }
+
+  private obtainRelatingRibbons(selectedRibbon: RibbonTree) {
+    const descendants = Enumerable.from([selectedRibbon]).traverseBreadthFirst(ribbon => Enumerable.from(ribbon?.children ?? []));
+    const ancestors = Enumerable.from([selectedRibbon]).traverseBreadthFirst(ribbon => Enumerable.from(ribbon?.parent ? [ribbon?.parent] : []));
+    return descendants.concat(ancestors).toArray();
+  }
+
+  private highlightRibbons(ribbons: RibbonTree[]) {
+    this.clearRibbonHighlights(true);
+    Enumerable.from(ribbons ?? []).forEach(ribbon => {
+      const ribbonClassList = ribbon?.domElement?.classList;
+      ribbonClassList?.toggle('dim', false);
+      ribbonClassList?.toggle('highlighted', true);
+    });
+  }
+
+  private clearRibbonHighlights(dim: boolean = false) {
+    Enumerable.from(this.ribbonTree?.children ?? [])
+      .traverseBreadthFirst(ribbon => Enumerable.from(ribbon?.children ?? []))
+      .forEach(ribbon => {
+        const ribbonClassList = ribbon?.domElement?.classList;
+        ribbonClassList?.toggle('highlighted', false);
+        if (dim) {
+          ribbonClassList?.toggle('dim', true);
+        } else {
+          ribbonClassList?.toggle('dim', false);
+        }
+      });
   }
 }

@@ -24,4 +24,13 @@
 
 .ribbon {
   cursor: pointer;
+  opacity: 0.6;
+}
+
+.ribbon.highlighted {
+  opacity: 0.9;
+}
+
+.ribbon.dim {
+  opacity: 0.3;
 }

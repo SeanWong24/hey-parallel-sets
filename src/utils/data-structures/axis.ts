@@ -1,7 +1,7 @@
 import Enumerable from 'linq';
 import { HeyParallelSets } from '../../components/hey-parallel-sets/hey-parallel-sets';
 import { AxisSegment } from './axis-segment';
-import { Value } from './basic';
+import { Value, WithDomElement } from './basic';
 import { WrappedValue } from './wrapped-value';
 
 export type AxisValueSortingFunction = (a: Value, b: Value) => number;
@@ -16,14 +16,15 @@ export interface AxisOptions {
   valueSortingFunction?: AxisValueSortingFunction;
 }
 
-export class Axis implements AxisOptions {
+export class Axis implements AxisOptions, WithDomElement<SVGGElement> {
   parallelSets: HeyParallelSets;
   dimension: string;
+  mergedSegmentAdjustmentRatio: number = 0;
   maxSegmentCountLimit?: number;
   mergedSegmentLabel?: string;
   mergedSegmentMaxRatioLimit?: number;
   valueSortingFunction?: AxisValueSortingFunction;
-  mergedSegmentAdjustmentRatio: number = 0;
+  domElement?: SVGGElement;
 
   private _label?: string;
   get label() {

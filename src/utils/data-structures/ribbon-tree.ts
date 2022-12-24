@@ -1,7 +1,7 @@
 import Enumerable from 'linq';
 import { HeyParallelSets } from '../../components/hey-parallel-sets/hey-parallel-sets';
 import { AxisSegment } from './axis-segment';
-import { RatioRange } from './basic';
+import { RatioRange, WithDomElement } from './basic';
 import { RibbonPath } from './ribbon-path';
 
 export interface RibbonTreeOptions {
@@ -13,7 +13,7 @@ export interface RibbonTreeOptions {
   ratioOffsetInPreviousAxisSegment?: number;
 }
 
-export class RibbonTree implements RibbonTreeOptions {
+export class RibbonTree implements RibbonTreeOptions, WithDomElement<SVGPathElement> {
   depth: number = 0;
   parallelSets: HeyParallelSets;
   axisSegmentAndRibbonPathMap: Map<AxisSegment, RibbonPath[]>;
@@ -21,6 +21,7 @@ export class RibbonTree implements RibbonTreeOptions {
   ratioOffsetInPreviousAxisSegment: number = 0;
   parent?: RibbonTree;
   children?: RibbonTree[];
+  domElement?: SVGPathElement;
 
   get data() {
     return this.path?.data;

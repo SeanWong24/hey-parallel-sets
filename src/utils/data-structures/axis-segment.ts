@@ -1,5 +1,5 @@
 import { Axis } from './axis';
-import { Datum, RatioRange } from './basic';
+import { Datum, RatioRange, WithDomElement } from './basic';
 import { WrappedValue } from './wrapped-value';
 
 export interface AxisSegmentOptions {
@@ -10,12 +10,13 @@ export interface AxisSegmentOptions {
   label?: string;
 }
 
-export class AxisSegment implements AxisSegmentOptions {
+export class AxisSegment implements AxisSegmentOptions, WithDomElement<SVGGElement> {
   axis: Axis;
   value: WrappedValue;
   ratioOffset: number = 0;
   data: Datum[];
   merged: boolean = false;
+  domElement?: SVGGElement;
 
   private _label?: string;
   get label() {
